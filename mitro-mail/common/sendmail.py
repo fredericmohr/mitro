@@ -2,10 +2,21 @@ import cStringIO
 import smtplib
 import email.Charset
 import email.generator
+import config
+import logging
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from tornado import options
+
+# Logging (in case it's needed)
+#logging.info('message: %s', variable)
+
+# Get settings from global mitro.cfg config
+host=config.getopt("smtp","_SMTP_HOST")
+port=config.getopt("smtp","_SMTP_PORT")
+user=config.getopt("smtp","_SMTP_USER")
+pwd=config.getopt("smtp","_SMTP_PASSWD")
 
 options.define('smtp_user', '', help='User for SMTP (currently unused)')
 options.define('smtp_password', '', help='Password for SMTP (currently unused)')
@@ -58,9 +69,19 @@ def to_string(message):
     g.flatten(message)
     return io.getvalue()
 
-# TODO: These settings should be handled within a global mitro config file
-def send_message_via_smtp(message, host='localhost', port=25,
-                          user=None, pwd=None):
+
+
+def send_message_via_smtp(message, 
+	host=config.getopt("smtp","_SMTP_HOST"),
+	port=config.getopt("smtp","_SMTP_PORT"),
+	user=config.getopt("smtp","_SMTP_USER"),
+	pwd=config.getopt("smtp","_SMTP_PASSWD")
+	):
+
+    smtp_debug = str.lower(config.getopt("smtp","_SMTP_DEBUG"))
+    if smtp_debug == "true":
+        logging.info('host: %s - port %s - user %s - pwd %s', host, port, user, pwd)
+
     if (user or pwd): assert (user and pwd)
     if type(message) != list:
         messages = [message]
@@ -81,5 +102,5 @@ def send_message_via_smtp_options(message):
     message can be a child of email.Message or a list 
     of those which will all be sent
     ''' 
-    return send_message_via_smtp(message, options.options.smtp_host, options.smtp_port,
-        options.options.smtp_host, options.options.smtp_password)
+    return send_message_via_smtp(message, options.options.smtp_host, options.options.smtp_port,
+        options.options.smtp_user, options.options.smtp_password)

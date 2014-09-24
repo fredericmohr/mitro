@@ -95,7 +95,10 @@ _fake_send_count = 0
 _last_message = None
 def _send(message):
     if options.options.enable_email:
-        sendmail.send_message_via_smtp(message)
+        if options.options.smtp_host:
+            sendmail.send_message_via_smtp_options(message)
+        else:
+            sendmail.send_message_via_smtp(message)
     else:
         logging.info('email disabled; not sending to %s', message['To'])
         global _fake_send_count
