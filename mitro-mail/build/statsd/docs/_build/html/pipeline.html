@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Pipelines &mdash; Python StatsD 2.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Python StatsD 2.1.0 documentation" href="index.html" />
+    <link rel="next" title="API Reference" href="reference.html" />
+    <link rel="prev" title="Using Timers" href="timing.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="reference.html" title="API Reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="timing.html" title="Using Timers"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Python StatsD 2.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pipelines">
+<span id="pipeline-chapter"></span><h1>Pipelines<a class="headerlink" href="#pipelines" title="Permalink to this headline">¶</a></h1>
+<p>The <tt class="docutils literal"><span class="pre">Pipeline</span></tt> class is a subclass of <tt class="docutils literal"><span class="pre">StatsClient</span></tt> that batches
+together several stats before sending. It implements the entire client
+interface, plus a <tt class="docutils literal"><span class="pre">send()</span></tt> method.</p>
+<p><tt class="docutils literal"><span class="pre">Pipeline</span></tt> objects should be created with
+<tt class="docutils literal"><span class="pre">StatsClient().pipeline()</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">client</span> <span class="o">=</span> <span class="n">StatsClient</span><span class="p">()</span>
+
+<span class="n">pipe</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">pipeline</span><span class="p">()</span>
+<span class="n">pipe</span><span class="o">.</span><span class="n">incr</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">)</span>
+<span class="n">pipe</span><span class="o">.</span><span class="n">decr</span><span class="p">(</span><span class="s">&#39;bar&#39;</span><span class="p">)</span>
+<span class="n">pipe</span><span class="o">.</span><span class="n">timing</span><span class="p">(</span><span class="s">&#39;baz&#39;</span><span class="p">,</span> <span class="mi">520</span><span class="p">)</span>
+<span class="n">pipe</span><span class="o">.</span><span class="n">send</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>No stats will be sent until <tt class="docutils literal"><span class="pre">send()</span></tt> is called, at which point they
+will be packed into as few UDP packets as possible.</p>
+<div class="section" id="as-a-context-manager">
+<h2>As a Context Manager<a class="headerlink" href="#as-a-context-manager" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">Pipeline</span></tt> objects can also be used as context managers:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">with</span> <span class="n">StatsClient</span><span class="p">()</span><span class="o">.</span><span class="n">pipeline</span><span class="p">()</span> <span class="k">as</span> <span class="n">pipe</span><span class="p">:</span>
+    <span class="n">pipe</span><span class="o">.</span><span class="n">incr</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">)</span>
+    <span class="n">pipe</span><span class="o">.</span><span class="n">decr</span><span class="p">(</span><span class="s">&#39;bar&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">pipe.send()</span></tt> will be called automatically when the managed block
+exits.</p>
+</div>
+<div class="section" id="thread-safety">
+<h2>Thread Safety<a class="headerlink" href="#thread-safety" title="Permalink to this headline">¶</a></h2>
+<p>While <tt class="docutils literal"><span class="pre">StatsClient</span></tt> instances are considered thread-safe (or at least
+as thread-safe as the standard library&#8217;s <tt class="docutils literal"><span class="pre">socket.send</span></tt> is),
+<tt class="docutils literal"><span class="pre">Pipeline</span></tt> instances <strong>are not thread-safe</strong>. Storing stats for later
+creates at least two important race conditions in a multi-threaded
+environment. You should create one <tt class="docutils literal"><span class="pre">Pipeline</span></tt> per-thread, if
+necessary.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Pipelines</a><ul>
+<li><a class="reference internal" href="#as-a-context-manager">As a Context Manager</a></li>
+<li><a class="reference internal" href="#thread-safety">Thread Safety</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="timing.html"
+                        title="previous chapter">Using Timers</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="reference.html"
+                        title="next chapter">API Reference</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/pipeline.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="reference.html" title="API Reference"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="timing.html" title="Using Timers"
+             >previous</a> |</li>
+        <li><a href="index.html">Python StatsD 2.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, James Socol.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

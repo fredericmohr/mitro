@@ -1,0 +1,331 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>API Reference &mdash; Python StatsD 2.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Python StatsD 2.1.0 documentation" href="index.html" />
+    <link rel="next" title="Contributing" href="contributing.html" />
+    <link rel="prev" title="Pipelines" href="pipeline.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="contributing.html" title="Contributing"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pipeline.html" title="Pipelines"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Python StatsD 2.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="api-reference">
+<span id="reference-chapter"></span><h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<p>The <tt class="docutils literal"><span class="pre">StatsClient</span></tt> provides accessors for all the types of data the
+<a class="reference external" href="https://github.com/etsy/statsd">statsd</a> server supports.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Each public API method supports a <tt class="docutils literal"><span class="pre">rate</span></tt> parameter, but statsd
+doesn&#8217;t always use it the same way. See the <a class="reference internal" href="types.html#types-chapter"><em>Data Types</em></a> for
+more information.</p>
+</div>
+<div class="section" id="statsclient">
+<span id="id1"></span><h2><tt class="docutils literal"><span class="pre">StatsClient</span></tt><a class="headerlink" href="#statsclient" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">StatsClient</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">&#39;localhost&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8125</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Create a new <tt class="docutils literal"><span class="pre">StatsClient</span></tt> instance with the appropriate connection
+and prefix information.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">host</span></tt>: the hostname or IPv4 address of the <a class="reference external" href="https://github.com/etsy/statsd">statsd</a> server.</li>
+<li><tt class="docutils literal"><span class="pre">port</span></tt>: the port of the statsd server.</li>
+<li><tt class="docutils literal"><span class="pre">prefix</span></tt>: a prefix to distinguish and group stats from an
+application or environment.</li>
+</ul>
+<div class="section" id="incr">
+<span id="id2"></span><h3><tt class="docutils literal"><span class="pre">incr</span></tt><a class="headerlink" href="#incr" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">StatsClient</span><span class="p">()</span><span class="o">.</span><span class="n">incr</span><span class="p">(</span><span class="n">stat</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Increment a <a class="reference internal" href="types.html#counter-type"><em>counter</em></a>.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">stat</span></tt>: the name of the counter to increment.</li>
+<li><tt class="docutils literal"><span class="pre">count</span></tt>: the amount to increment by. Typically an integer. May be
+negative, but see also <a class="reference internal" href="#decr"><em>decr</em></a>.</li>
+<li><tt class="docutils literal"><span class="pre">rate</span></tt>: a sample rate, a float between 0 and 1. Will only send data
+this percentage of the time. The statsd server will take the sample
+rate into account for counters.</li>
+</ul>
+</div>
+<div class="section" id="decr">
+<span id="id3"></span><h3><tt class="docutils literal"><span class="pre">decr</span></tt><a class="headerlink" href="#decr" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">StatsClient</span><span class="p">()</span><span class="o">.</span><span class="n">decr</span><span class="p">(</span><span class="n">stat</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Decrement a <a class="reference internal" href="types.html#counter-type"><em>counter</em></a>.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">stat</span></tt>: the name of the counter to decrement.</li>
+<li><tt class="docutils literal"><span class="pre">count</span></tt>: the amount to decrement by. Typically an integer. May be
+negative but that will have the impact of incrementing the counter.
+See also <a class="reference internal" href="#incr"><em>incr</em></a>.</li>
+<li><tt class="docutils literal"><span class="pre">rate</span></tt>: a sample rate, a float between 0 and 1. Will only send data
+this percentage of the time. The statsd server will take the sample
+rate into account for counters.</li>
+</ul>
+</div>
+<div class="section" id="gauge">
+<span id="id4"></span><h3><tt class="docutils literal"><span class="pre">gauge</span></tt><a class="headerlink" href="#gauge" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">StatsClient</span><span class="p">()</span><span class="o">.</span><span class="n">gauge</span><span class="p">(</span><span class="n">stat</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Set a <a class="reference internal" href="types.html#gauge-type"><em>gauge</em></a> value.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">stat</span></tt>: the name of the gauge to set.</li>
+<li><tt class="docutils literal"><span class="pre">value</span></tt>: the current value of the gauge.</li>
+<li><tt class="docutils literal"><span class="pre">rate</span></tt>: a sample rate, a float between 0 and 1. Will only send data
+this percentage of the time. The statsd server does <em>not</em> take the
+sample rate into account for gauges. Use with care.</li>
+<li><tt class="docutils literal"><span class="pre">delta</span></tt>: whether or not to consider this a delta value or an
+absolute value. See the <a class="reference internal" href="types.html#gauge-type"><em>gauge</em></a> type for more
+detail.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Gauges were added to the statsd server in commit <a class="reference external" href="https://github.com/etsy/statsd/commit/0ed78be7">0ed78be</a>. If you try
+to use this method with an older version of the server, the data will
+not be recorded.</p>
+</div>
+</div>
+<div class="section" id="set">
+<span id="id5"></span><h3><tt class="docutils literal"><span class="pre">set</span></tt><a class="headerlink" href="#set" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">StatsClient</span><span class="p">()</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">stat</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Increment a <a class="reference internal" href="types.html#set-type"><em>set</em></a> value.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">stat</span></tt>: the name of the set to update.</li>
+<li><tt class="docutils literal"><span class="pre">value</span></tt>: the unique value to count.</li>
+<li><tt class="docutils literal"><span class="pre">rate</span></tt>: a sample rate, a float between 0 and 1. Will only send data
+this percentage of the time. The statsd server does <em>not</em> take the
+sample rate into account for sets. Use with care.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Sets were added to the statsd server in commit <a href="#id10"><span class="problematic" id="id11">1c10cfc0ac_</span></a>. If you
+try to use this method with an older version of the server, the
+data will not be recorded.</p>
+</div>
+</div>
+<div class="section" id="timing">
+<span id="id6"></span><h3><tt class="docutils literal"><span class="pre">timing</span></tt><a class="headerlink" href="#timing" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">StatsClient</span><span class="p">()</span><span class="o">.</span><span class="n">timing</span><span class="p">(</span><span class="n">stat</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Record <a class="reference internal" href="types.html#timer-type"><em>timer</em></a> information.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">stat</span></tt>: the name of the timer to use.</li>
+<li><tt class="docutils literal"><span class="pre">delta</span></tt>: the number of milliseconds whatever action took. Should
+always be milliseconds.</li>
+<li><tt class="docutils literal"><span class="pre">rate</span></tt>: a sample rate, a float between 0 and 1. Will only send data
+this percentage of the time. The statsd server does <em>not</em> take the
+sample rate into account for timers.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="timer">
+<span id="id7"></span><h2><tt class="docutils literal"><span class="pre">timer</span></tt><a class="headerlink" href="#timer" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">with</span> <span class="n">StatsClient</span><span class="p">()</span><span class="o">.</span><span class="n">timer</span><span class="p">(</span><span class="n">stat</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<div class="highlight-python"><pre>@StatsClient().timer(stat, rate=1)
+def foo():
+    pass</pre>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">timer</span> <span class="o">=</span> <span class="n">StatsClient</span><span class="p">()</span><span class="o">.</span><span class="n">timer</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Automatically record timing information for a managed block or function
+call.  See also the <a class="reference internal" href="timing.html#timing-chapter"><em>chapter on timing</em></a>.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">stat</span></tt>: the name of the timer to use.</li>
+<li><tt class="docutils literal"><span class="pre">rate</span></tt>: a sample rate, a float between 0 and 1. Will only send data
+this percentage of the time. The statsd server does <em>not</em> take the
+sample rate into account for timers.</li>
+</ul>
+<div class="section" id="start">
+<span id="timer-start"></span><h3><tt class="docutils literal"><span class="pre">start</span></tt><a class="headerlink" href="#start" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">StatsClient</span><span class="p">()</span><span class="o">.</span><span class="n">timer</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Causes a timer object to start counting. Called automatically when the
+object is used as a decorator or context manager. Returns the timer
+object for simplicity.</p>
+</div>
+<div class="section" id="stop">
+<span id="timer-stop"></span><h3><tt class="docutils literal"><span class="pre">stop</span></tt><a class="headerlink" href="#stop" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">timer</span> <span class="o">=</span> <span class="n">StatsClient</span><span class="p">()</span><span class="o">.</span><span class="n">timer</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Causes the timer object to stop timing and send the results to <a class="reference external" href="https://github.com/etsy/statsd">statsd</a>.
+Can be called with <tt class="docutils literal"><span class="pre">send=False</span></tt> to prevent immediate sending
+immediately, and use <tt class="docutils literal"><span class="pre">send()</span></tt>. Called automatically when the object is
+used as a decorator or context manager. Returns the timer object.</p>
+<p>If <tt class="docutils literal"><span class="pre">stop()</span></tt> is called before <tt class="docutils literal"><span class="pre">start()</span></tt>, a <tt class="docutils literal"><span class="pre">RuntimeError</span></tt> is
+raised.</p>
+</div>
+<div class="section" id="send">
+<span id="timer-send"></span><h3><tt class="docutils literal"><span class="pre">send</span></tt><a class="headerlink" href="#send" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">timer</span> <span class="o">=</span> <span class="n">StatsClient</span><span class="p">()</span><span class="o">.</span><span class="n">timer</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">send</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">timer</span><span class="o">.</span><span class="n">send</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Causes the timer to send any unsent data. If the data has already been
+sent, or has not yet been recorded, a <tt class="docutils literal"><span class="pre">RuntimeError</span></tt> is raised.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">See the note abbout <a class="reference internal" href="timing.html#timer-direct-note"><em>timer objects and pipelines</em></a>.</p>
+</div>
+</div>
+</div>
+<div class="section" id="pipeline">
+<span id="id8"></span><h2><tt class="docutils literal"><span class="pre">pipeline</span></tt><a class="headerlink" href="#pipeline" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">StatsClient</span><span class="p">()</span><span class="o">.</span><span class="n">pipeline</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Returns a <a class="reference internal" href="pipeline.html#pipeline-chapter"><em>Pipeline</em></a> object for collecting
+several stats. Can also be used as a context manager:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">with</span> <span class="n">StatsClient</span><span class="p">()</span><span class="o">.</span><span class="n">pipeline</span><span class="p">()</span> <span class="k">as</span> <span class="n">pipe</span><span class="p">:</span>
+    <span class="n">pipe</span><span class="o">.</span><span class="n">incr</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="pipeline-send">
+<span id="id9"></span><h3><tt class="docutils literal"><span class="pre">send</span></tt><a class="headerlink" href="#pipeline-send" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pipe</span> <span class="o">=</span> <span class="n">StatsClient</span><span class="p">()</span><span class="o">.</span><span class="n">pipeline</span><span class="p">()</span>
+<span class="n">pipe</span><span class="o">.</span><span class="n">incr</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">)</span>
+<span class="n">pipe</span><span class="o">.</span><span class="n">send</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Causes a <a class="reference internal" href="pipeline.html#pipeline-chapter"><em>Pipeline</em></a> object to send all batched
+stats.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This method is not implemented on the base StatsClient class.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">API Reference</a><ul>
+<li><a class="reference internal" href="#statsclient"><tt class="docutils literal"><span class="pre">StatsClient</span></tt></a><ul>
+<li><a class="reference internal" href="#incr"><tt class="docutils literal"><span class="pre">incr</span></tt></a></li>
+<li><a class="reference internal" href="#decr"><tt class="docutils literal"><span class="pre">decr</span></tt></a></li>
+<li><a class="reference internal" href="#gauge"><tt class="docutils literal"><span class="pre">gauge</span></tt></a></li>
+<li><a class="reference internal" href="#set"><tt class="docutils literal"><span class="pre">set</span></tt></a></li>
+<li><a class="reference internal" href="#timing"><tt class="docutils literal"><span class="pre">timing</span></tt></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#timer"><tt class="docutils literal"><span class="pre">timer</span></tt></a><ul>
+<li><a class="reference internal" href="#start"><tt class="docutils literal"><span class="pre">start</span></tt></a></li>
+<li><a class="reference internal" href="#stop"><tt class="docutils literal"><span class="pre">stop</span></tt></a></li>
+<li><a class="reference internal" href="#send"><tt class="docutils literal"><span class="pre">send</span></tt></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pipeline"><tt class="docutils literal"><span class="pre">pipeline</span></tt></a><ul>
+<li><a class="reference internal" href="#pipeline-send"><tt class="docutils literal"><span class="pre">send</span></tt></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pipeline.html"
+                        title="previous chapter">Pipelines</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="contributing.html"
+                        title="next chapter">Contributing</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/reference.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="contributing.html" title="Contributing"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pipeline.html" title="Pipelines"
+             >previous</a> |</li>
+        <li><a href="index.html">Python StatsD 2.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, James Socol.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

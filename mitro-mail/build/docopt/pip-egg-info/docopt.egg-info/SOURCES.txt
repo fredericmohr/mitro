@@ -1,0 +1,7 @@
+README
+docopt.py
+setup.cfg
+pip-egg-info/docopt.egg-info/PKG-INFO
+pip-egg-info/docopt.egg-info/SOURCES.txt
+pip-egg-info/docopt.egg-info/dependency_links.txt
+pip-egg-info/docopt.egg-info/top_level.txt

@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Using Timers &mdash; Python StatsD 2.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Python StatsD 2.1.0 documentation" href="index.html" />
+    <link rel="next" title="Pipelines" href="pipeline.html" />
+    <link rel="prev" title="Data Types" href="types.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="pipeline.html" title="Pipelines"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="types.html" title="Data Types"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Python StatsD 2.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="using-timers">
+<span id="timing-chapter"></span><h1>Using Timers<a class="headerlink" href="#using-timers" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference internal" href="types.html#timer-type"><em>Timers</em></a> are an incredibly powerful tool for tracking
+application performance. Statsd provides a number of ways to use them to
+instrument your code.</p>
+<p>There are four ways to use timers.</p>
+<div class="section" id="calling-timing-manually">
+<h2>Calling <tt class="docutils literal"><span class="pre">timing</span></tt> manually<a class="headerlink" href="#calling-timing-manually" title="Permalink to this headline">¶</a></h2>
+<p>The simplest way to use a timer is to record the time yourself and send
+it manually, using the <a class="reference internal" href="reference.html#timing"><em>timing</em></a> method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">statsd</span> <span class="kn">import</span> <span class="n">StatsClient</span>
+
+<span class="n">statsd</span> <span class="o">=</span> <span class="n">StatsClient</span><span class="p">()</span>
+
+<span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c"># You must convert to milliseconds:</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="n">statsd</span><span class="o">.</span><span class="n">timing</span><span class="p">(</span><span class="s">&#39;slept&#39;</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-a-context-manager">
+<h2>Using a context manager<a class="headerlink" href="#using-a-context-manager" title="Permalink to this headline">¶</a></h2>
+<p>Each <tt class="docutils literal"><span class="pre">StatsClient</span></tt> instance contains a <a class="reference internal" href="reference.html#timer"><em>timer</em></a> attribute that can
+be used as a context manager or a decorator. When used as a context
+manager, it will automatically report the time taken for the inner
+block:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">statsd</span> <span class="kn">import</span> <span class="n">StatsClient</span>
+
+<span class="n">statsd</span> <span class="o">=</span> <span class="n">StatsClient</span><span class="p">()</span>
+
+<span class="k">with</span> <span class="n">statsd</span><span class="o">.</span><span class="n">timer</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">):</span>
+    <span class="c"># This block will be timed.</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100000</span><span class="p">):</span>
+        <span class="n">i</span> <span class="o">**</span> <span class="mi">2</span>
+<span class="c"># The timing is sent immediately when the managed block exits.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-a-decorator">
+<h2>Using a decorator<a class="headerlink" href="#using-a-decorator" title="Permalink to this headline">¶</a></h2>
+<p>The <tt class="docutils literal"><span class="pre">timer</span></tt> attribute can also be used as a function decorator. Every
+time the decorated function is called, the time it took to execute will
+be sent to the statsd server.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">statsd</span> <span class="kn">import</span> <span class="n">StatsClient</span>
+
+<span class="n">statsd</span> <span class="o">=</span> <span class="n">StatsClient</span><span class="p">()</span>
+
+<span class="nd">@statsd.timer</span><span class="p">(</span><span class="s">&#39;myfunc&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">myfunc</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate the most complicated thing a and b can do.&quot;&quot;&quot;</span>
+
+<span class="c"># Timing information will be sent every time the function is called.</span>
+<span class="n">myfunc</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">myfunc</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-a-timer-object-directly">
+<h2>Using a Timer object directly<a class="headerlink" href="#using-a-timer-object-directly" title="Permalink to this headline">¶</a></h2>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 2.1.</span></p>
+</div>
+<p><tt class="xref py py-class docutils literal"><span class="pre">statsd.client.Timer</span></tt> objects function as context managers and
+as decorators, but they can also be used directly. (Flat is, after all,
+better than nested.)</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">statsd</span> <span class="kn">import</span> <span class="n">StatsClient</span>
+
+<span class="n">statsd</span> <span class="o">=</span> <span class="n">StatsClient</span><span class="p">()</span>
+
+<span class="n">foo_timer</span> <span class="o">=</span> <span class="n">statsd</span><span class="o">.</span><span class="n">timer</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">)</span>
+<span class="n">foo_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="c"># Do something fun.</span>
+<span class="n">foo_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>When <tt class="xref py py-meth docutils literal"><span class="pre">statsd.client.Timer.stop()</span></tt> is called, a <a class="reference external" href="timer-type">timing stat</a> will automatically be sent to StatsD. You can over ride
+this behavior with the <tt class="docutils literal"><span class="pre">send=False</span></tt> keyword argument to <tt class="docutils literal"><span class="pre">stop()</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">foo_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">send</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">foo_timer</span><span class="o">.</span><span class="n">send</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Use <tt class="xref py py-meth docutils literal"><span class="pre">statsd.client.Timer.send()</span></tt> to send the stat when you&#8217;re
+ready.</p>
+<div class="admonition note" id="timer-direct-note">
+<p class="first admonition-title">Note</p>
+<p>This use of timers is compatible with <a class="reference external" href="pipeline-chapter">Pipelines</a>
+but be careful with the <tt class="docutils literal"><span class="pre">send()</span></tt> method. It <em>must</em> be called for
+the stat to be included when the Pipeline finally sends data, but
+<tt class="docutils literal"><span class="pre">send()</span></tt> will <em>not</em> immediately cause data to be sent in the
+context of a Pipeline. For example:</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="k">with</span> <span class="n">statsd</span><span class="o">.</span><span class="n">pipeline</span><span class="p">()</span> <span class="k">as</span> <span class="n">pipe</span><span class="p">:</span>
+    <span class="n">foo_timer</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">timer</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="c"># Do something...</span>
+    <span class="n">pipe</span><span class="o">.</span><span class="n">incr</span><span class="p">(</span><span class="s">&#39;bar&#39;</span><span class="p">)</span>
+    <span class="n">foo_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>  <span class="c"># Will be sent when the managed block exits.</span>
+
+<span class="k">with</span> <span class="n">statsd</span><span class="o">.</span><span class="n">pipeline</span><span class="p">()</span> <span class="k">as</span> <span class="n">pipe</span><span class="p">:</span>
+    <span class="n">foo_timer</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">timer</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="c"># Do something...</span>
+    <span class="n">pipe</span><span class="o">.</span><span class="n">incr</span><span class="p">(</span><span class="s">&#39;bar&#39;</span><span class="p">)</span>
+    <span class="n">foo_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">send</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>  <span class="c"># Will not be sent.</span>
+    <span class="n">foo_timer</span><span class="o">.</span><span class="n">send</span><span class="p">()</span>  <span class="c"># Will be sent when the managed block exits.</span>
+    <span class="c"># Do something else...</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Using Timers</a><ul>
+<li><a class="reference internal" href="#calling-timing-manually">Calling <tt class="docutils literal"><span class="pre">timing</span></tt> manually</a></li>
+<li><a class="reference internal" href="#using-a-context-manager">Using a context manager</a></li>
+<li><a class="reference internal" href="#using-a-decorator">Using a decorator</a></li>
+<li><a class="reference internal" href="#using-a-timer-object-directly">Using a Timer object directly</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="types.html"
+                        title="previous chapter">Data Types</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pipeline.html"
+                        title="next chapter">Pipelines</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/timing.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="pipeline.html" title="Pipelines"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="types.html" title="Data Types"
+             >previous</a> |</li>
+        <li><a href="index.html">Python StatsD 2.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, James Socol.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

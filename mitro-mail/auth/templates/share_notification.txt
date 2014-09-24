@@ -1,0 +1,10 @@
+Hello {{ recipient_name }},
+
+{{ sender_name }} ({{ sender_email }}) has something to share with you
+
+Name: {{ recipient_name }}
+Email address: {{ recipient_email }}
+Secret Title: {{ secret_title }}
+URL: {{ secret_url }}
+
+Fooobar

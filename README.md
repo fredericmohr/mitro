@@ -5,6 +5,34 @@ Mitro saves all your passwords, synchronizes them across all your devices, and l
 If you are a user, install it from the [Mitro web site](https://www.mitro.co/). If you have any questions, you can ask on the [mitro-dev@googlegroups.com](https://groups.google.com/forum/#!forum/mitro-dev) mailing list, or [send @MitroCo a tweet](https://www.twitter.com/MitroCo).
 
 
+## Debian Server Setup Script 
+The script is a compressed version of this [blogpost](https://www.hashtagsecurity.com/mitro-login-manager-on-premise-2/)
+
+1. Copy the the script mitro-debian-setup.sh to /srv/ 
+   - It will clone the repo by itself)
+   - The script must be called "mitro-debian-setup.sh" or it will fail!
+
+2. run the following commands as root
+    cd /srv/
+    chmod +x ./mitro-debian-setup.sh
+    ./mitro-debian-setup.sh
+
+3. Next, make sure to follow the instruction the script prints (namely, setting passwords for admin and mitro!)
+    pwgen -s -n 12 -c 2
+    passwd admin password
+    passwd mitro password
+
+4. Now you can start the mitro server
+    screen -S mitro-server
+    su - mitro
+    cd /srv/mitro/mitro-core
+    ant server
+
+5. To leave the screen session without killing the process, type:
+    [Ctrl]+[A] [D]
+
+Tested on Debian Wheezy (7)
+
 ## Quick Start
 
 1. Install dependencies (see [`browser-ext/README`](browser-ext/README.md), [`mitro-core/README`](mitro-core/README.md)) [node, npm, homebrew, java, ant]

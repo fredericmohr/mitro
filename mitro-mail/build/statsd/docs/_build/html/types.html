@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Data Types &mdash; Python StatsD 2.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Python StatsD 2.1.0 documentation" href="index.html" />
+    <link rel="next" title="Using Timers" href="timing.html" />
+    <link rel="prev" title="Configuring Statsd" href="configure.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="timing.html" title="Using Timers"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="configure.html" title="Configuring Statsd"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Python StatsD 2.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="data-types">
+<span id="types-chapter"></span><h1>Data Types<a class="headerlink" href="#data-types" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference external" href="https://github.com/etsy/statsd">statsd</a> server supports a number of different data types, and
+performs different aggregation on each of them. The three main types are
+<em>counters</em>, <em>timers</em>, and <em>gauges</em>.</p>
+<p>The statsd server collects and aggregates in 30 second intervals before
+flushing to <a class="reference external" href="http://graphite.wikidot.com/">Graphite</a>. Graphite usually stores the most recent data in
+1-minute averaged buckets, so when you&#8217;re looking at a graph, for each
+stat you are typically seing the average value over that minute.</p>
+<div class="section" id="counters">
+<span id="counter-type"></span><h2>Counters<a class="headerlink" href="#counters" title="Permalink to this headline">¶</a></h2>
+<p><em>Counters</em> are the most basic and default type. They are treated as a
+count of a type of event per second, and are, in <a class="reference external" href="http://graphite.wikidot.com/">Graphite</a>, typically
+averaged over one minute. That is, when looking at a graph, you are
+usually seeing the average number of events per second during a
+one-minute period.</p>
+<p>The statsd server collects counters under the <tt class="docutils literal"><span class="pre">stats</span></tt> prefix.</p>
+<p>Counters are managed with the <a class="reference internal" href="reference.html#incr"><em>incr</em></a> and <a class="reference internal" href="reference.html#decr"><em>decr</em></a> methods of
+<tt class="docutils literal"><span class="pre">StatsClient</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">statsd</span> <span class="kn">import</span> <span class="n">StatsClient</span>
+
+<span class="n">statsd</span> <span class="o">=</span> <span class="n">StatsClient</span><span class="p">()</span>
+
+<span class="n">statsd</span><span class="o">.</span><span class="n">incr</span><span class="p">(</span><span class="s">&#39;some.event&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can increment a counter by more than one by passing a second
+parameter:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">statsd</span><span class="o">.</span><span class="n">incr</span><span class="p">(</span><span class="s">&#39;some.other.event&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also use the <tt class="docutils literal"><span class="pre">rate</span></tt> parameter to produce sampled data. The
+statsd server will take the sample rate into account, and the
+<tt class="docutils literal"><span class="pre">StatsClient</span></tt> will only send data <tt class="docutils literal"><span class="pre">rate</span></tt> percent of the time. This
+can help the statsd server stay responsive with extremely busy
+applications.</p>
+<p><tt class="docutils literal"><span class="pre">rate</span></tt> is a float between 0 and 1:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Increment this counter 10% of the time.</span>
+<span class="n">statsd</span><span class="o">.</span><span class="n">incr</span><span class="p">(</span><span class="s">&#39;some.third.event&#39;</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Because the statsd server is aware of the sampling, it will still show
+you the true average rate per second.</p>
+<p>You can also decrement counters. The <tt class="docutils literal"><span class="pre">decr</span></tt> method takes the same
+arguments as <tt class="docutils literal"><span class="pre">incr</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">statsd</span><span class="o">.</span><span class="n">decr</span><span class="p">(</span><span class="s">&#39;some.other.event&#39;</span><span class="p">)</span>
+<span class="c"># Decrease the counter by 5, 15% sample.</span>
+<span class="n">statsd</span><span class="o">.</span><span class="n">decr</span><span class="p">(</span><span class="s">&#39;some.third.event&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.15</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="timers">
+<span id="timer-type"></span><h2>Timers<a class="headerlink" href="#timers" title="Permalink to this headline">¶</a></h2>
+<p><em>Timers</em> are meant to track how long something took. They are an
+invaluable tool for tracking application performance.</p>
+<p>The statsd server collects all timers under the <tt class="docutils literal"><span class="pre">stats.timers</span></tt> prefix,
+and will calculate the lower bound, mean, 90th percentile, upper bound,
+and count of each timer for each period (by the time you see it in
+Graphite, that&#8217;s usually per minute).</p>
+<ul class="simple">
+<li>The <em>lower bound</em> is the lowest value statsd saw for that stat during
+that time period.</li>
+<li>The <em>mean</em> is the average of all values statsd saw for that stat</li>
+</ul>
+<p>during that time period.</p>
+<ul class="simple">
+<li>The <em>90th percentile</em> is a value <em>x</em> such that 90% of all the values
+statsd saw for that stat during that time period are below <em>x</em>, and
+10% are above.  This is a great number to try to optimize.</li>
+<li>The <em>upper bound</em> is the highest value statsd saw for that stat during
+that time period.</li>
+<li>The <em>count</em> is the number of timings statsd saw for that stat during
+that time period. It is not averaged.</li>
+</ul>
+<p>The statsd server only operates in millisecond timings. Everything
+should be converted to milliseconds.</p>
+<p>The <tt class="docutils literal"><span class="pre">rate</span></tt> parameter will sample the data being sent to the statsd
+server, but in this case it doesn&#8217;t make sense for the statsd server to
+take it into account (except possibly for the <em>count</em> value, but then it
+would be lying about how much data it averaged).</p>
+<p>See the <a class="reference internal" href="timing.html#timing-chapter"><em>timing documentation</em></a> for more detail on
+using timers with Statsd.</p>
+</div>
+<div class="section" id="gauges">
+<span id="gauge-type"></span><h2>Gauges<a class="headerlink" href="#gauges" title="Permalink to this headline">¶</a></h2>
+<p><em>Gauges</em> are a constant data type. They are not subject to averaging,
+and they don&#8217;t change unless you change them. That is, once you set a
+gauge value, it will be a flat line on the graph until you change it
+again.</p>
+<p>Gauges are useful for things that are already averaged, or don&#8217;t need to
+reset periodically. System load, for example, could be graphed with a
+gauge. You might use <tt class="docutils literal"><span class="pre">incr</span></tt> to count the number of logins to a system,
+but a gauge to track how many active WebSocket connections you have.</p>
+<p>The statsd server collects gauges under the <tt class="docutils literal"><span class="pre">stats.gauges</span></tt> prefix.</p>
+<p>The <a class="reference internal" href="reference.html#gauge"><em>gauge</em></a> method also support the <tt class="docutils literal"><span class="pre">rate</span></tt> parameter to sample
+data back to the statsd server, but use it with care, especially with
+gauges that may not be updated very often.</p>
+<div class="section" id="gauge-deltas">
+<h3>Gauge Deltas<a class="headerlink" href="#gauge-deltas" title="Permalink to this headline">¶</a></h3>
+<p>Gauges may be <em>updated</em> (as opposed to <em>set</em>) by setting the <tt class="docutils literal"><span class="pre">delta</span></tt>
+keyword argument to <tt class="docutils literal"><span class="pre">True</span></tt>. For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">statsd</span><span class="o">.</span><span class="n">gauge</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">,</span> <span class="mi">70</span><span class="p">)</span>  <span class="c"># Set the &#39;foo&#39; gauge to 70.</span>
+<span class="n">statsd</span><span class="o">.</span><span class="n">gauge</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>  <span class="c"># Set &#39;foo&#39; to 71.</span>
+<span class="n">statsd</span><span class="o">.</span><span class="n">gauge</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>  <span class="c"># Set &#39;foo&#39; to 68.</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Support for gauge deltas was added to the server in <a class="reference external" href="https://github.com/etsy/statsd/commit/3eecd18">3eecd18</a>. You
+will need to be running at least that version for the <tt class="docutils literal"><span class="pre">delta</span></tt> kwarg
+to have any effect.</p>
+</div>
+</div>
+</div>
+<div class="section" id="sets">
+<span id="set-type"></span><h2>Sets<a class="headerlink" href="#sets" title="Permalink to this headline">¶</a></h2>
+<p><em>Sets</em> count the number of unique values passed to a key.</p>
+<p>For example, you could count the number of users accessing your system
+using:</p>
+<blockquote>
+<div>statsd.set(&#8216;users&#8217;, userid)</div></blockquote>
+<p>If that method is called multiple times with the same userid in the
+same sample period, that userid will only be counted once.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Data Types</a><ul>
+<li><a class="reference internal" href="#counters">Counters</a></li>
+<li><a class="reference internal" href="#timers">Timers</a></li>
+<li><a class="reference internal" href="#gauges">Gauges</a><ul>
+<li><a class="reference internal" href="#gauge-deltas">Gauge Deltas</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sets">Sets</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="configure.html"
+                        title="previous chapter">Configuring Statsd</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="timing.html"
+                        title="next chapter">Using Timers</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/types.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="timing.html" title="Using Timers"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="configure.html" title="Configuring Statsd"
+             >previous</a> |</li>
+        <li><a href="index.html">Python StatsD 2.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, James Socol.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>
